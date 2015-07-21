@@ -5,6 +5,8 @@ public class CameraController : MonoBehaviour {
 
 	public GameObject objectToFollow;
 
+	public bool gradiatedTracking = true;
+
 	private Vector2 offset = Vector2.zero;
 
 	// Use this for initialization
@@ -22,7 +24,12 @@ public class CameraController : MonoBehaviour {
 
 		Vector2 distance = new Vector2( Mathf.Abs (objectScreenPos.x - Screen.width/2.0f), Mathf.Abs(objectScreenPos.y - Screen.height/2.0f) );
 
-		Vector2 threshold = new Vector2( Screen.width/4.0f, Screen.height/4.0f );
+		Vector2 threshold;
+
+		if(!gradiatedTracking)
+			threshold = new Vector2( Screen.width/4.0f, Screen.height/4.0f );
+		else
+			threshold = distance;
 
 		if(distance.x >= threshold.x || distance.y >= threshold.y )	{
 

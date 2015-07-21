@@ -9,6 +9,8 @@ public class PlayerController : MonoBehaviour {
 
 	public bool USE_MOUSE = false;
 
+	public float driftOnRelease = 1.0f;
+
 	public GameObject sphere;
 
 	private Vector2 targetPos = new Vector2 (3.0f , 4.0f );
@@ -17,9 +19,11 @@ public class PlayerController : MonoBehaviour {
 
 	private Camera cam;
 
-	private Vector2 previousTouchPosition;
+	//private Vector2 previousTouchPosition;
 
 	private Vector2 transformPositionOnRelease;
+
+	private Vector2 previousTargetPos;
 
 	// Use this for initialization
 	void Start () {
@@ -27,7 +31,9 @@ public class PlayerController : MonoBehaviour {
 		rb = GetComponent<Rigidbody2D>();
 		rb.drag = 6.5f;
 
-		previousTouchPosition = new Vector2( Screen.width/2, Screen.height/2 );
+		//previousTouchPosition = new Vector2( Screen.width/2, Screen.height/2 );
+
+		previousTargetPos = Vector2.zero;
 		transformPositionOnRelease = Vector2.zero;
 
 		cam = Camera.main;
@@ -39,18 +45,28 @@ public class PlayerController : MonoBehaviour {
 
 		if( USE_MOUSE ) {
 			//if(Input.GetMouseButton)
-				targetPos = new Vector2( Input.mousePosition.x, Input.mousePosition.y );// / Screen.height) * 2.0f - 1.0f);
-		} else {
-			if(Input.touchCount>0) {
-				targetPos = new Vector2( Input.GetTouch(0).position.x, Input.GetTouch (0).position.y );
-				previousTouchPosition = targetPos;
+			if(Input.GetMouseButton(0))	{
+				targetPos = new Vector2( Input.mousePosition.x, Input.mousePosition.y );
 				transformPositionOnRelease = transform.position;
 				targetPos = cam.ScreenToWorldPoint(targetPos);	
 				sphere.GetComponent<MeshRenderer>().enabled = true;
+				previousTargetPos = targetPos;
 			} else {
 				targetPos = transformPositionOnRelease;
+				targetPos += (previousTargetPos-transformPositionOnRelease) * driftOnRelease;
 				sphere.GetComponent<MeshRenderer>().enabled = false;
-				//targetPos = previousTouchPosition;
+			}
+		} else {
+			if(Input.touchCount>0) {
+				targetPos = new Vector2( Input.GetTouch(0).position.x, Input.GetTouch (0).position.y );
+				transformPositionOnRelease = transform.position;
+				targetPos = cam.ScreenToWorldPoint(targetPos);	
+				sphere.GetComponent<MeshRenderer>().enabled = true;
+				previousTargetPos = targetPos;
+			} else {
+				targetPos = transformPositionOnRelease;
+				targetPos += (previousTargetPos-transformPositionOnRelease) * driftOnRelease;
+				sphere.GetComponent<MeshRenderer>().enabled = false;
 			}
 		}
 
